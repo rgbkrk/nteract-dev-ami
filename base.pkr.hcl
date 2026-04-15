@@ -35,10 +35,15 @@ source "amazon-ebs" "base" {
   associate_public_ip_address = true
   iam_instance_profile        = "packer-bake-profile"
 
-  # Auto-discover a default-VPC subnet instead of hardcoding one.
+  # Auto-discover the default VPC and any available subnet in it.
+  vpc_filter {
+    filters = {
+      "isDefault" = "true"
+    }
+  }
   subnet_filter {
     filters = {
-      "default-for-az" = "true"
+      "state" = "available"
     }
     most_free = true
     random    = false

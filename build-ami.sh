@@ -19,7 +19,8 @@ apt-get $APT_OPT install -y \
   libssl-dev libgtk-3-dev libwebkit2gtk-4.1-dev libxdo-dev \
   libayatana-appindicator3-dev librsvg2-dev tmux xvfb \
   webkit2gtk-driver gcc-mingw-w64-x86-64 nasm git-lfs \
-  python3 python3-venv python3-dev
+  python3 python3-venv python3-dev \
+  sqlite3
 
 # Node.js 22
 curl -fsSL https://deb.nodesource.com/setup_22.x | bash -

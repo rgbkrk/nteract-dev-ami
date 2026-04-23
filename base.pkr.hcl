@@ -35,6 +35,14 @@ source "amazon-ebs" "base" {
   associate_public_ip_address = true
   iam_instance_profile        = "packer-bake-profile"
 
+  # Large root volume snapshots routinely take >30min (packer default) to flip
+  # to available. Give AWS enough headroom that a healthy bake doesn't look
+  # like a failure.
+  aws_polling {
+    delay_seconds = 30
+    max_attempts  = 134
+  }
+
   # Auto-discover the default VPC and any available subnet in it.
   vpc_filter {
     filters = {

@@ -15,7 +15,7 @@ APT_OPT="-o DPkg::Lock::Timeout=600"
 apt-get $APT_OPT update
 apt-get $APT_OPT upgrade -y
 apt-get $APT_OPT install -y \
-  build-essential curl direnv git unzip jq pkg-config \
+  build-essential clang curl direnv git unzip jq pkg-config \
   libssl-dev libgtk-3-dev libwebkit2gtk-4.1-dev libxdo-dev \
   libayatana-appindicator3-dev librsvg2-dev tmux xvfb \
   webkit2gtk-driver gcc-mingw-w64-x86-64 nasm git-lfs \

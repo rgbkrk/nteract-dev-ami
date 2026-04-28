@@ -1,21 +1,5 @@
-packer {
-  required_plugins {
-    amazon = {
-      version = ">= 1.3.0"
-      source  = "github.com/hashicorp/amazon"
-    }
-  }
-}
-
-variable "aws_region" {
-  type    = string
-  default = "us-east-1"
-}
-
-variable "instance_type" {
-  type    = string
-  default = "m7i.2xlarge"
-}
+# Shared bits (packer block, aws_region, instance_type) live in
+# packer.pkr.hcl so windows.pkr.hcl can reuse them without duplicating.
 
 source "amazon-ebs" "base" {
   ami_name      = "nteract-dev-ami-{{timestamp}}"

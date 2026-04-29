@@ -106,7 +106,7 @@ Install-Github-Binary -Tag 'wasm-pack' -ExeName 'wasm-pack.exe' `
     -Url 'https://github.com/rustwasm/wasm-pack/releases/download/v0.13.1/wasm-pack-v0.13.1-x86_64-pc-windows-msvc.tar.gz'
 
 Install-Github-Binary -Tag 'pnpm' -ExeName 'pnpm.exe' `
-    -Url 'https://github.com/pnpm/pnpm/releases/latest/download/pnpm-win-x64.exe'
+    -Url 'https://github.com/pnpm/pnpm/releases/latest/download/pnpm-win32-x64.zip'
 
 # --- 7. Pre-clone nteract/desktop --------------------------------------
 # Public repo, HTTPS, no auth. Lives at C:\dev\desktop with sandbox having

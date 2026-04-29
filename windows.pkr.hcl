@@ -84,14 +84,17 @@ build {
 
   # Sysprep + EC2Launch generalize: hostname, SID, admin password, and the
   # ephemeral packer keypair all reset on first boot of a new instance.
-  # Without this, every winlab launched from the AMI would inherit the
-  # bake instance's hostname and SID, and Tailscale would see them as
-  # the same node.
+  # Without this, every instance launched from the AMI would inherit the
+  # bake instance's hostname and SID.
+  #
+  # Windows Server 2022 ships EC2Launch v2; the v1-era ResetHasRunFiles.ps1
+  # / InitializeInstance.ps1 / SysprepInstance.ps1 scripts are gone. The v2
+  # `EC2Launch.exe sysprep --block` command does the same job (resets the
+  # ec2launch agent's run state, runs the Windows sysprep tool, blocks
+  # until done, and shuts the instance down so packer can snapshot it).
   provisioner "powershell" {
     inline = [
-      "C:\\ProgramData\\Amazon\\EC2Launch\\Scripts\\ResetHasRunFiles.ps1",
-      "C:\\ProgramData\\Amazon\\EC2Launch\\Scripts\\InitializeInstance.ps1 -Schedule",
-      "C:\\ProgramData\\Amazon\\EC2Launch\\Scripts\\SysprepInstance.ps1 -NoShutdown",
+      "& 'C:\\Program Files\\Amazon\\EC2Launch\\EC2Launch.exe' sysprep --block --shutdown"
     ]
   }
 }

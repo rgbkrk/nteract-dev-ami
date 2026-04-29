@@ -11,6 +11,25 @@
 $ErrorActionPreference = 'Stop'
 $ProgressPreference    = 'SilentlyContinue'  # Invoke-WebRequest is glacial otherwise
 
+# Retry wrapper. GitHub's asset CDN intermittently closes connections
+# mid-transfer ("the connection was closed unexpectedly"). One blip used to
+# kill an entire 11-min bake; three attempts with exponential backoff covers
+# the typical hiccup without masking a real outage.
+function Invoke-WebRequest-WithRetry {
+    param([string]$Uri, [string]$OutFile, [int]$MaxAttempts = 3)
+    for ($i = 1; $i -le $MaxAttempts; $i++) {
+        try {
+            Invoke-WebRequest -Uri $Uri -OutFile $OutFile -UseBasicParsing
+            return
+        } catch {
+            if ($i -eq $MaxAttempts) { throw }
+            $sleep = [math]::Pow(2, $i)  # 2s, 4s, 8s
+            Write-Host "WARN: download attempt $i/$MaxAttempts of $Uri failed ($_); retrying in $sleep s"
+            Start-Sleep -Seconds $sleep
+        }
+    }
+}
+
 $logRoot = 'C:\ProgramData\nteract-bake'
 New-Item -ItemType Directory -Path $logRoot -Force | Out-Null
 Start-Transcript -Path "$logRoot\bake.log" -Append | Out-Null
@@ -43,7 +62,7 @@ New-ItemProperty -Path 'HKLM:\SOFTWARE\OpenSSH' -Name DefaultShell `
 
 # --- 4. Pixi (env manager used by #2274 reproductions) ---------------
 $pixiZip = "$env:TEMP\pixi.zip"
-Invoke-WebRequest -Uri 'https://github.com/prefix-dev/pixi/releases/latest/download/pixi-x86_64-pc-windows-msvc.zip' -OutFile $pixiZip
+Invoke-WebRequest-WithRetry -Uri 'https://github.com/prefix-dev/pixi/releases/latest/download/pixi-x86_64-pc-windows-msvc.zip' -OutFile $pixiZip
 $pixiDir = 'C:\Program Files\pixi'
 New-Item -ItemType Directory -Path $pixiDir -Force | Out-Null
 Expand-Archive -Path $pixiZip -DestinationPath $pixiDir -Force
@@ -61,13 +80,15 @@ foreach ($p in 'C:\Program Files\Git\cmd','C:\Program Files\NASM','C:\Program Fi
 $env:Path = $machinePath
 
 # --- 6. wasm-pack + pnpm (binary downloads) ----------------------------
+# Uses Invoke-WebRequest-WithRetry (defined above) - GitHub's release CDN
+# was the original motivator for adding retries.
 function Install-Github-Binary {
     param([string]$Url, [string]$ExeName, [string]$Tag)
     $tmp = "$env:TEMP\$Tag-dl"
     if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
     New-Item -ItemType Directory -Path $tmp -Force | Out-Null
     $archive = "$tmp\archive$([IO.Path]::GetExtension($Url))"
-    Invoke-WebRequest -Uri $Url -OutFile $archive
+    Invoke-WebRequest-WithRetry -Uri $Url -OutFile $archive
     if ($archive.EndsWith('.tar.gz')) {
         & 'C:\Windows\System32\tar.exe' -xzf $archive -C $tmp
     } elseif ($archive.EndsWith('.zip')) {

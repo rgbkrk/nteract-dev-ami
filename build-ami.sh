@@ -20,7 +20,13 @@ apt-get $APT_OPT install -y \
   libayatana-appindicator3-dev librsvg2-dev tmux xvfb \
   webkit2gtk-driver gcc-mingw-w64-x86-64 nasm git-lfs \
   python3 python3-venv python3-dev \
-  sqlite3
+  sqlite3 \
+  ripgrep fd-find hyperfine \
+  cmake cppzmq-dev libzmq3-dev libsodium-dev gnuplot-nox
+
+# Ubuntu ships fd as `fdfind` to avoid a name conflict with an older
+# unrelated package. Symlink to `fd` so muscle memory + scripts work.
+ln -sf /usr/bin/fdfind /usr/local/bin/fd
 
 # Node.js 22
 curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
@@ -41,13 +47,17 @@ curl -fsSL https://tailscale.com/install.sh | sh
 # Playwright system deps
 npx playwright install-deps
 
-# Rust toolchain (as ubuntu)
+# Rust toolchain (as ubuntu). 1.94.0 is the default; 1.94.1 is also
+# installed because the OMQ smoke path in zmq.rs perf labs pins that
+# patch (`cargo +1.94.1`). flamegraph rides along with the other
+# cargo-binstalled tools — needs `perf` (already present) at runtime.
 sudo -u ubuntu bash <<'RUSTEOF'
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.94.0
   source "$HOME/.cargo/env"
   rustup component add rustfmt clippy
+  rustup toolchain install 1.94.1 --profile minimal
   curl -fsSL https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-  cargo binstall -y tauri-cli wasm-pack sccache
+  cargo binstall -y tauri-cli wasm-pack sccache flamegraph
 RUSTEOF
 
 # vite.plus

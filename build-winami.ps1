@@ -1,6 +1,6 @@
 # Runs as packer's elevated PowerShell provisioner on the bake instance.
 # Installs the full nteract Windows build toolchain and pre-clones
-# nteract/desktop. Per-boot user-data on a winlab launched from this AMI
+# nteract/nteract. Per-boot user-data on a winlab launched from this AMI
 # only does sandbox-user creation, sshd + GitHub keys, tailscale, and a
 # shallow `git pull` of the cloned repo.
 #
@@ -108,13 +108,13 @@ Install-Github-Binary -Tag 'wasm-pack' -ExeName 'wasm-pack.exe' `
 Install-Github-Binary -Tag 'pnpm' -ExeName 'pnpm.exe' `
     -Url 'https://github.com/pnpm/pnpm/releases/latest/download/pnpm-win32-x64.zip'
 
-# --- 7. Pre-clone nteract/desktop --------------------------------------
-# Public repo, HTTPS, no auth. Lives at C:\dev\desktop with sandbox having
+# --- 7. Pre-clone nteract/nteract --------------------------------------
+# Public repo, HTTPS, no auth. Lives at C:\dev\nteract with sandbox having
 # write access (the sandbox user is created per-boot but Administrators
 # group always has full rights so per-boot ACL fixup is one icacls call).
 $dev = 'C:\dev'
 New-Item -ItemType Directory -Path $dev -Force | Out-Null
-& git clone --depth 50 https://github.com/nteract/desktop.git "$dev\desktop"
+& git clone --depth 50 https://github.com/nteract/nteract.git "$dev\nteract"
 
 # --- 8. Marker for bake verification -----------------------------------
 Set-Content -Path "$logRoot\bake-done" -Value "bake done $(Get-Date -Format o)"

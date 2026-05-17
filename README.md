@@ -1,6 +1,6 @@
 # nteract-dev-ami
 
-Packer recipes for AMIs that build [`nteract/desktop`](https://github.com/nteract/desktop).
+Packer recipes for AMIs that build [`nteract/nteract`](https://github.com/nteract/nteract).
 
 Two recipes:
 
@@ -16,7 +16,7 @@ Two recipes:
 - Python 3, uv, maturin
 - Deno, GitHub CLI, Playwright system deps, Tailscale (installed, not configured)
 - Claude Code CLI
-- `nteract/desktop` and `rgbkrk/async-rust-lsp` pre-cloned
+- `nteract/nteract` and `rgbkrk/async-rust-lsp` pre-cloned
 - A release build of `runtimed` and debug builds of `runt` + `mcpb-runt`, symlinked in `/usr/local/bin/`
 
 ## Windows (`windows.pkr.hcl`)
@@ -27,7 +27,7 @@ Two recipes:
 - pixi (env manager)
 - pnpm + wasm-pack (GitHub release binaries)
 - OpenSSH Server enabled, default shell PowerShell
-- `nteract/desktop` pre-cloned at `C:\dev\desktop`
+- `nteract/nteract` pre-cloned at `C:\dev\nteract`
 
 Per-boot user-data on a winlab launched from this AMI just adds the sandbox
 admin user, drops your GitHub keys, joins Tailscale, and runs `git pull` on

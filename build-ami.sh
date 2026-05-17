@@ -86,9 +86,9 @@ chown -R ubuntu:ubuntu /home/ubuntu/.config/sccache
 # Clone public source repos (HTTPS — no auth needed)
 sudo -u ubuntu bash -c '
   mkdir -p ~/projects
-  git clone https://github.com/nteract/desktop.git ~/projects/desktop || true
+  git clone https://github.com/nteract/nteract.git ~/projects/nteract || true
   git clone https://github.com/rgbkrk/async-rust-lsp.git ~/projects/async-rust-lsp || true
-  cd ~/projects/desktop && direnv allow
+  cd ~/projects/nteract && direnv allow
 '
 
 # Warm sccache + produce nightly binaries
@@ -98,7 +98,7 @@ set -euo pipefail
 export PATH="$HOME/.local/bin:$PATH"
 . "$HOME/.vite-plus/env" 2>/dev/null || true
 export RUSTC_WRAPPER=sccache
-cd ~/projects/desktop
+cd ~/projects/nteract
 vp install
 cargo xtask build
 cargo build --release -p runtimed
@@ -109,7 +109,7 @@ sudo -u ubuntu bash <<'DAEMONEOF' || true
 set -euo pipefail
 NIGHTLY_BIN="$HOME/.local/share/runt-nightly/bin"
 mkdir -p "$NIGHTLY_BIN"
-cd ~/projects/desktop
+cd ~/projects/nteract
 cp target/release/runtimed "$NIGHTLY_BIN/runtimed-nightly"
 cp target/debug/runt "$NIGHTLY_BIN/runt-nightly"
 cp target/debug/mcpb-runt "$NIGHTLY_BIN/mcpb-runt-nightly"

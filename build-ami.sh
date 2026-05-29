@@ -65,7 +65,7 @@ sudo -u ubuntu bash <<'RUSTEOF'
   rustup component add rustfmt clippy
   rustup toolchain install 1.94.1 --profile minimal
   curl -fsSL https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-  cargo binstall -y tauri-cli wasm-pack sccache flamegraph
+  cargo binstall -y tauri-cli wasm-pack flamegraph
 RUSTEOF
 
 # vite.plus
@@ -81,16 +81,6 @@ sudo -u ubuntu bash -c 'curl -fsSL https://deno.land/install.sh | sh'
 # Claude Code CLI
 sudo -u ubuntu bash -c 'curl -fsSL https://claude.ai/install.sh | bash'
 
-# sccache S3 config — needed before the warming build below
-sudo -u ubuntu mkdir -p /home/ubuntu/.config/sccache
-cat > /home/ubuntu/.config/sccache/config <<'SCCACHEEOF'
-[cache.s3]
-bucket = "nteract-sccache"
-region = "us-east-1"
-no_credentials = false
-SCCACHEEOF
-chown -R ubuntu:ubuntu /home/ubuntu/.config/sccache
-
 # Clone public source repos (HTTPS — no auth needed)
 sudo -u ubuntu bash -c '
   mkdir -p ~/projects
@@ -99,13 +89,12 @@ sudo -u ubuntu bash -c '
   cd ~/projects/nteract && direnv allow
 '
 
-# Warm sccache + produce nightly binaries
+# Produce nightly binaries
 sudo -u ubuntu bash <<'BUILDEOF' || true
 set -euo pipefail
 . "$HOME/.cargo/env"
 export PATH="$HOME/.local/bin:$PATH"
 . "$HOME/.vite-plus/env" 2>/dev/null || true
-export RUSTC_WRAPPER=sccache
 cd ~/projects/nteract
 vp install
 cargo xtask build

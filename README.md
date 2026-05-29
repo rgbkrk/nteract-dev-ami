@@ -12,7 +12,7 @@ Two recipes:
 - Ubuntu 24.04, fully upgraded
 - Build deps for Tauri + WebKit on Linux
 - Node 22 (via nodesource), pnpm via corepack
-- Rust 1.94.0 with rustfmt, clippy, cargo-binstall, tauri-cli, wasm-pack, sccache
+- Rust 1.94.0 with rustfmt, clippy, cargo-binstall, tauri-cli, wasm-pack
 - Python 3, uv, maturin
 - Deno, GitHub CLI, Playwright system deps, Tailscale (installed, not configured)
 - Claude Code CLI
@@ -41,7 +41,7 @@ packer build base.pkr.hcl       # Linux
 packer build windows.pkr.hcl    # Windows
 ```
 
-Both recipes require an AWS credential source with EC2 + S3 (sccache) access
-and `iam:PassRole` for `packer-bake-profile`. lab-maker's IAM role grants
+Both recipes require an AWS credential source with EC2 access and
+`iam:PassRole` for `packer-bake-profile`. lab-maker's IAM role grants
 all of this; lab-maker drives both bakes on systemd timers (Linux every 7h,
 Windows every 13h).

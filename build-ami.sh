@@ -12,6 +12,14 @@ echo "=== nteract-dev-ami bake starting ==="
 # Wait out any concurrent apt holder (cloud-init first-boot, unattended-upgrades)
 APT_OPT="-o DPkg::Lock::Timeout=600"
 
+# The regional EC2 mirror (us-east-1.ec2.archive.ubuntu.com) has served a
+# persistently stale noble-updates index ("File has unexpected size / Mirror
+# sync in progress") that fails apt-get update under set -e and aborts the
+# bake before it can write its success sentinel. Repoint at canonical
+# archive.ubuntu.com (slower from EC2, consistent) before any apt call.
+sed -i -E 's#https?://[a-z0-9.-]*\.ec2\.archive\.ubuntu\.com#http://archive.ubuntu.com#g' \
+  /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list 2>/dev/null || true
+
 apt-get $APT_OPT update
 apt-get $APT_OPT upgrade -y
 apt-get $APT_OPT install -y \

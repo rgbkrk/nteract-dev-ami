@@ -51,9 +51,14 @@ source "amazon-ebs" "base" {
     delete_on_termination = true
   }
 
-  # The Sandbox SCP denies ec2:CreateImage unless the new image and its
-  # snapshot carry an `owner` tag at creation. The amazon plugin applies these
-  # via CreateImage TagSpecifications, which satisfies the mandate.
+  # The Sandbox SCP (p-hhe2a0ko) denies ec2:CreateImage without an `owner` tag.
+  # The amazon plugin applies tags/snapshot_tags AFTER CreateImage (a separate
+  # CreateTags), so they don't satisfy the gated call; run_tags puts owner on
+  # the source instance (at RunInstances) that the CreateImage deny references.
+  run_tags = {
+    owner = "kkelley@anaconda.com"
+  }
+
   tags = {
     Name    = "nteract-dev-ami"
     Builder = "packer"

@@ -51,9 +51,18 @@ source "amazon-ebs" "base" {
     delete_on_termination = true
   }
 
+  # The Sandbox SCP denies ec2:CreateImage unless the new image and its
+  # snapshot carry an `owner` tag at creation. The amazon plugin applies these
+  # via CreateImage TagSpecifications, which satisfies the mandate.
   tags = {
     Name    = "nteract-dev-ami"
     Builder = "packer"
+    owner   = "kkelley@anaconda.com"
+  }
+
+  snapshot_tags = {
+    Name  = "nteract-dev-ami-snapshot"
+    owner = "kkelley@anaconda.com"
   }
 }
 
